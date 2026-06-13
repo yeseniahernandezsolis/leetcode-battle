@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeetCode Race 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p1:       #C2527A;
+  --p1-light: #FFE4EF;
+  --p1-mid:   #F4A7C3;
+  --p1-deep:  #8B3055;
+  --p2:       #7C4DBC;
+  --p2-light: #EDE7F6;
+  --p2-mid:   #B39DDB;
+  --p2-deep:  #4A2080;
+  --bg:    #F9F4FB;
+  --cream: #FFFAFF;
+  --text:  #2D1F3D;
+  --muted: #8A7898;
+  --border: rgba(124,77,188,0.13);
+  --easy-bg:#D4F5E0;--easy-txt:#1a6b3a;
+  --med-bg:#FFE9C0;--med-txt:#7a4a00;
+  --hard-bg:#FFD6D6;--hard-txt:#8b1a1a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text);min-height:100vh;padding:2rem 1rem 5rem}
+.wrap{max-width:800px;margin:0 auto}
+.site-header{text-align:center;margin-bottom:2rem}
+.site-header h1{font-family:'Dancing Script',cursive;font-size:2.8rem;font-weight:700;background:linear-gradient(90deg,var(--p1),var(--p2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15}
+.site-header p{font-family:'Dancing Script',cursive;font-size:1.1rem;color:var(--muted);margin-top:2px}
+.card{background:var(--cream);border-radius:22px;padding:1.4rem 1.5rem;border:1.5px solid var(--border);margin-bottom:1.25rem}
+.card-title{font-family:'Dancing Script',cursive;font-size:1.4rem;font-weight:600;color:var(--text);margin-bottom:1rem}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+input,select{font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);background:#fff;border:1.5px solid var(--p2-mid);border-radius:11px;padding:8px 12px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+input:focus,select:focus{border-color:var(--p2);box-shadow:0 0 0 3px rgba(124,77,188,.1)}
+input::placeholder{color:#c0aad4}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.grid-names{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+.btn{font-family:'Nunito',sans-serif;font-weight:700;border:none;border-radius:11px;cursor:pointer;transition:transform .13s,background .15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;padding:9px 20px;font-size:14px;box-shadow:0 3px 14px rgba(124,77,188,.3)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-sm{padding:7px 16px;font-size:13px}
+.race-hero{background:var(--cream);border-radius:22px;border:1.5px solid var(--border);margin-bottom:1.25rem;overflow:hidden}
+.race-header{padding:1.2rem 1.5rem 0;display:flex;align-items:center;justify-content:space-between}
+.race-title{font-family:'Dancing Script',cursive;font-size:1.4rem;font-weight:600;color:var(--text)}
+.race-status{font-size:12px;font-weight:700;color:var(--muted)}
+.track-wrap{padding:1.2rem 1.5rem 1.4rem;display:flex;flex-direction:column;gap:20px}
+.lane{position:relative}
+.lane-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.lane-name{font-size:13px;font-weight:700}
+.lane-name.p1{color:var(--p1-deep)}
+.lane-name.p2{color:var(--p2-deep)}
+.lane-pts{font-size:22px;font-weight:700;line-height:1}
+.lane-pts.p1{color:var(--p1)}
+.lane-pts.p2{color:var(--p2)}
+.lane-pts span{font-size:12px;font-weight:500;color:var(--muted)}
+.lane-sub{font-size:11px;color:var(--muted);font-weight:600}
+.track-bar{height:38px;background:rgba(0,0,0,.04);border-radius:99px;position:relative;overflow:visible}
+.track-fill{height:100%;border-radius:99px;position:absolute;left:0;top:0;transition:width .7s cubic-bezier(.4,0,.2,1);min-width:38px;display:flex;align-items:center;justify-content:flex-end;padding-right:4px}
+.track-fill.p1{background:linear-gradient(90deg,var(--p1-light),var(--p1-mid),var(--p1))}
+.track-fill.p2{background:linear-gradient(90deg,var(--p2-light),var(--p2-mid),var(--p2))}
+.runner{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;position:absolute;right:-2px;top:50%;transform:translateY(-50%);z-index:2;background:#fff}
+.runner.p1{border-color:var(--p1)}
+.runner.p2{border-color:var(--p2)}
+.finish-line{position:absolute;right:0;top:-4px;bottom:-4px;width:3px;background:repeating-linear-gradient(180deg,#333 0px,#333 6px,#fff 6px,#fff 12px);border-radius:2px;opacity:.25}
+.lane-divider{border:none;border-top:1px dashed rgba(124,77,188,.15);margin:0}
+.gap-bar{padding:0 1.5rem 1.2rem;display:flex;align-items:center;gap:10px}
+.gap-track{flex:1;height:6px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden}
+.gap-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p1),var(--p2));transition:width .6s}
+.gap-label{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+.scoreboard{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.25rem}
+.p-card{background:var(--cream);border-radius:20px;padding:1.2rem 1.4rem;border:2px solid var(--border);transition:border-color .25s,box-shadow .25s;position:relative;overflow:hidden}
+.p-card.p1-card{border-color:rgba(194,82,122,.2)}
+.p-card.p2-card{border-color:rgba(124,77,188,.2)}
+.p-card.winner.p1-card{border-color:var(--p1);box-shadow:0 4px 22px rgba(194,82,122,.18)}
+.p-card.winner.p2-card{border-color:var(--p2);box-shadow:0 4px 22px rgba(124,77,188,.18)}
+.p-card.winner::after{content:'👑';position:absolute;top:10px;right:14px;font-size:18px;animation:rock 1.2s ease-in-out infinite}
+@keyframes rock{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+.p-accent{height:4px;border-radius:99px;margin-bottom:12px}
+.p-accent.p1{background:linear-gradient(90deg,var(--p1-mid),var(--p1))}
+.p-accent.p2{background:linear-gradient(90deg,var(--p2-mid),var(--p2))}
+.p-name{font-family:'Dancing Script',cursive;font-size:1.4rem;font-weight:700;margin-bottom:8px}
+.p-name.p1{color:var(--p1-deep)}
+.p-name.p2{color:var(--p2-deep)}
+.badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px}
+.badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+.badge.easy{background:var(--easy-bg);color:var(--easy-txt)}
+.badge.medium{background:var(--med-bg);color:var(--med-txt)}
+.badge.hard{background:var(--hard-bg);color:var(--hard-txt)}
+.streak-txt{font-size:12px;color:var(--muted);font-weight:600;min-height:18px}
+.activity-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.act-col-name{font-family:'Dancing Script',cursive;font-size:1.1rem;font-weight:600;margin-bottom:10px;text-align:center}
+.act-col-name.p1{color:var(--p1-deep)}
+.act-col-name.p2{color:var(--p2-deep)}
+.week-rows{display:flex;flex-direction:column;gap:4px}
+.week-row{display:flex;align-items:center;gap:5px}
+.week-label{font-size:10px;color:var(--muted);width:26px;text-align:right;flex-shrink:0}
+.day-cells{display:flex;gap:3px;flex-wrap:nowrap}
+.day-cell{width:20px;height:20px;border-radius:4px;flex-shrink:0;position:relative;cursor:default}
+.day-cell:hover .day-tip{display:block}
+.day-tip{display:none;position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:10px;padding:3px 7px;border-radius:6px;white-space:nowrap;z-index:10;pointer-events:none}
+.p1-chart .day-cell.none{background:rgba(244,167,195,.15)}
+.p1-chart .day-cell.has-1{background:#F4C0D1}
+.p1-chart .day-cell.has-2{background:#E07FA0}
+.p1-chart .day-cell.has-3{background:#C2527A}
+.p1-chart .day-cell.has-4{background:#8B3055}
+.p1-chart .day-cell.skipped{background:rgba(194,82,122,.08);outline:1.5px dashed rgba(194,82,122,.4)}
+.p1-chart .day-cell.today-cell{outline:2px solid var(--p1)}
+.p2-chart .day-cell.none{background:rgba(179,157,219,.15)}
+.p2-chart .day-cell.has-1{background:#D1C4E9}
+.p2-chart .day-cell.has-2{background:#9575CD}
+.p2-chart .day-cell.has-3{background:#7C4DBC}
+.p2-chart .day-cell.has-4{background:#4A2080}
+.p2-chart .day-cell.skipped{background:rgba(124,77,188,.08);outline:1.5px dashed rgba(124,77,188,.4)}
+.p2-chart .day-cell.today-cell{outline:2px solid var(--p2)}
+.legend{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:10px;font-size:10px;color:var(--muted);flex-wrap:wrap}
+.legend-cell{width:13px;height:13px;border-radius:3px;flex-shrink:0}
+.chart-month-labels{display:flex;gap:3px;margin-bottom:4px;padding-left:31px}
+.month-lbl{font-size:9px;color:var(--muted);text-align:left;overflow:hidden}
+.prob-list{display:flex;flex-direction:column;gap:7px}
+.prob-item{background:#fff;border:1.5px solid rgba(124,77,188,.13);border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;transition:box-shadow .15s}
+.prob-item:hover{box-shadow:0 2px 10px rgba(124,77,188,.1)}
+.prob-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.prob-meta{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.pts-pill{font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px}
+.pts-pill.p1{color:var(--p1);background:rgba(194,82,122,.1)}
+.pts-pill.p2{color:var(--p2);background:rgba(124,77,188,.1)}
+.del-btn{background:none;border:none;cursor:pointer;color:#c0aad4;font-size:15px;padding:2px 5px;transition:color .15s;line-height:1}
+.del-btn:hover{color:var(--p2)}
+.log-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.filter-row{display:flex;gap:8px}
+.filter-row select{font-size:12px;padding:5px 10px;border-radius:10px;width:auto}
+.empty-state{text-align:center;padding:2.5rem;font-family:'Dancing Script',cursive;font-size:1.3rem;color:var(--muted)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#d4a0b0;display:inline-block;margin-right:5px;vertical-align:middle;transition:background .3s}
+.status-dot.live{background:#2ec27e}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(18px);background:var(--text);color:#fff;padding:10px 22px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;transition:opacity .28s,transform .28s;pointer-events:none;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(45,31,61,.3)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.config-banner{background:#fff3cd;border:1.5px solid #ffc107;border-radius:14px;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:13px;color:#856404;display:none}
+.config-banner.show{display:block}
+.config-banner code{background:rgba(0,0,0,.07);padding:1px 5px;border-radius:4px;font-size:12px}
+@media(max-width:560px){
+  .scoreboard,.activity-grid{grid-template-columns:1fr}
+  .grid-2,.grid-3{grid-template-columns:1fr 1fr}
+  .grid-names{grid-template-columns:1fr 1fr}
+  .grid-names .btn{grid-column:span 2}
+  .site-header h1{font-size:2.2rem}
+  .day-cell{width:16px;height:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="config-banner" id="cfg-banner">
+    ⚠️ Firebase isn't configured yet — replace the firebaseConfig block in this file. See SETUP.md for instructions.
+  </div>
+
+  <header class="site-header">
+    <h1>LeetCode Race 🏁</h1>
+    <p>first to the finish line wins bragging rights</p>
+  </header>
+
+  <div class="card">
+    <div class="card-title">who's racing?</div>
+    <div class="grid-names">
+      <div class="form-group"><label>🌸 Your name</label><input id="name1-input" type="text" placeholder="Yesenia Berry" maxlength="20"></div>
+      <div class="form-group"><label>💜 Their name</label><input id="name2-input" type="text" placeholder="Jose" maxlength="20"></div>
+      <button class="btn btn-primary btn-sm" onclick="saveNames()">Save</button>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px"><span class="status-dot" id="sync-dot"></span><span id="sync-label">connecting…</span></p>
+  </div>
+
+  <div class="race-hero">
+    <div class="race-header">
+      <div class="race-title">the race 🏁</div>
+      <div class="race-status" id="race-status">no problems yet</div>
+    </div>
+    <div class="track-wrap">
+      <div class="lane">
+        <div class="lane-header">
+          <div>
+            <div class="lane-name p1" id="lane1-name">Yesenia Berry</div>
+            <div class="lane-sub">
+              <span class="badge easy" id="lane1-easy" style="font-size:10px">0e</span>
+              <span class="badge medium" id="lane1-med" style="font-size:10px;margin:0 2px">0m</span>
+              <span class="badge hard" id="lane1-hard" style="font-size:10px">0h</span>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="lane-pts p1" id="lane1-pts">0 <span>pts</span></div>
+            <div class="streak-txt" id="lane1-streak"></div>
+          </div>
+        </div>
+        <div class="track-bar">
+          <div class="track-fill p1" id="fill1" style="width:4%">
+            <div class="runner p1">
+              <svg viewBox="0 0 32 32" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="14" r="10" fill="#FFB6C8"/>
+                <ellipse cx="10" cy="7" rx="3.5" ry="4.5" fill="#FFB6C8"/>
+                <ellipse cx="10" cy="7" rx="2" ry="3" fill="#FF89AA"/>
+                <ellipse cx="22" cy="7" rx="3.5" ry="4.5" fill="#FFB6C8"/>
+                <ellipse cx="22" cy="7" rx="2" ry="3" fill="#FF89AA"/>
+                <ellipse cx="16" cy="17" rx="4.5" ry="3.5" fill="#FF89AA"/>
+                <circle cx="14.5" cy="17.5" r="1.2" fill="#C2527A" opacity="0.6"/>
+                <circle cx="17.5" cy="17.5" r="1.2" fill="#C2527A" opacity="0.6"/>
+                <circle cx="13" cy="12" r="2" fill="white"/><circle cx="13.6" cy="12" r="1" fill="#5C2D3E"/>
+                <circle cx="19" cy="12" r="2" fill="white"/><circle cx="19.6" cy="12" r="1" fill="#5C2D3E"/>
+                <ellipse cx="10" cy="22" rx="3" ry="5" fill="#FFB6C8"/>
+                <ellipse cx="22" cy="22" rx="3" ry="5" fill="#FFB6C8"/>
+              </svg>
+            </div>
+          </div>
+          <div class="finish-line"></div>
+        </div>
+      </div>
+
+      <hr class="lane-divider">
+
+      <div class="lane">
+        <div class="lane-header">
+          <div>
+            <div class="lane-name p2" id="lane2-name">Jose</div>
+            <div class="lane-sub">
+              <span class="badge easy" id="lane2-easy" style="font-size:10px">0e</span>
+              <span class="badge medium" id="lane2-med" style="font-size:10px;margin:0 2px">0m</span>
+              <span class="badge hard" id="lane2-hard" style="font-size:10px">0h</span>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="lane-pts p2" id="lane2-pts">0 <span>pts</span></div>
+            <div class="streak-txt" id="lane2-streak"></div>
+          </div>
+        </div>
+        <div class="track-bar">
+          <div class="track-fill p2" id="fill2" style="width:4%">
+            <div class="runner p2">💜</div>
+          </div>
+          <div class="finish-line"></div>
+        </div>
+      </div>
+    </div>
+    <div class="gap-bar">
+      <div class="gap-label" id="gap-left" style="color:var(--p1);min-width:60px"></div>
+      <div class="gap-track"><div class="gap-fill" id="gap-fill" style="width:50%"></div></div>
+      <div class="gap-label" id="gap-right" style="color:var(--p2);min-width:60px;text-align:right"></div>
+    </div>
+  </div>
+
+  <div class="scoreboard">
+    <div class="p-card p1-card" id="card1">
+      <div class="p-accent p1"></div>
+      <div class="p-name p1" id="p1name">Yesenia Berry</div>
+      <div class="badges">
+        <span class="badge easy" id="p1easy">0 easy</span>
+        <span class="badge medium" id="p1med">0 med</span>
+        <span class="badge hard" id="p1hard">0 hard</span>
+      </div>
+      <div class="streak-txt" id="p1streak"></div>
+    </div>
+    <div class="p-card p2-card" id="card2">
+      <div class="p-accent p2"></div>
+      <div class="p-name p2" id="p2name">Jose</div>
+      <div class="badges">
+        <span class="badge easy" id="p2easy">0 easy</span>
+        <span class="badge medium" id="p2med">0 med</span>
+        <span class="badge hard" id="p2hard">0 hard</span>
+      </div>
+      <div class="streak-txt" id="p2streak"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">activity — last 8 weeks</div>
+    <div class="activity-grid">
+      <div>
+        <div class="act-col-name p1" id="act-name-1">Yesenia Berry</div>
+        <div id="chart1" class="p1-chart"></div>
+      </div>
+      <div>
+        <div class="act-col-name p2" id="act-name-2">Jose</div>
+        <div id="chart2" class="p2-chart"></div>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-cell" style="background:rgba(0,0,0,.07);outline:1.5px dashed rgba(100,100,100,.35)"></div> skipped
+      <div class="legend-cell" style="background:rgba(0,0,0,.07)"></div> rest
+      <span style="color:var(--p1);font-weight:700">🌸</span>
+      <div class="legend-cell" style="background:#F4C0D1"></div>
+      <div class="legend-cell" style="background:#E07FA0"></div>
+      <div class="legend-cell" style="background:#C2527A"></div>
+      <div class="legend-cell" style="background:#8B3055"></div>
+      <span style="color:var(--p2);font-weight:700">💜</span>
+      <div class="legend-cell" style="background:#D1C4E9"></div>
+      <div class="legend-cell" style="background:#9575CD"></div>
+      <div class="legend-cell" style="background:#7C4DBC"></div>
+      <div class="legend-cell" style="background:#4A2080"></div>
+      <span style="color:var(--muted)">1–4+ problems</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">log a problem ✏️</div>
+    <div class="grid-2">
+      <div class="form-group"><label>Problem name / #</label><input id="prob-name" type="text" placeholder="e.g. Two Sum (#1)"></div>
+      <div class="form-group"><label>Who solved it?</label>
+        <select id="prob-player">
+          <option value="1" id="opt1">Yesenia Berry</option>
+          <option value="2" id="opt2">Jose</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="form-group"><label>Difficulty</label>
+        <select id="prob-diff">
+          <option value="easy">Easy 🟢</option>
+          <option value="medium" selected>Medium 🟡</option>
+          <option value="hard">Hard 🔴</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Topic</label>
+        <select id="prob-tag">
+          <option>Array</option><option>String</option><option>Hash Map</option>
+          <option>Two Pointers</option><option>Sliding Window</option><option>Stack</option>
+          <option>Binary Search</option><option>Tree</option><option>Graph</option>
+          <option>DP</option><option>Backtracking</option><option>Greedy</option>
+          <option>Heap</option><option>Linked List</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Time (min)</label><input id="prob-time" type="number" min="1" max="999" placeholder="25"></div>
+    </div>
+    <button class="btn btn-primary" onclick="addProblem()" style="margin-top:6px">+ Log problem</button>
+  </div>
+
+  <div class="card">
+    <div class="log-header">
+      <div class="card-title" style="margin-bottom:0">problem history</div>
+      <div class="filter-row">
+        <select id="filter-player" onchange="renderList()">
+          <option value="all">All</option>
+          <option value="1" id="fopt1">Yesenia Berry</option>
+          <option value="2" id="fopt2">Jose</option>
+        </select>
+        <select id="filter-diff" onchange="renderList()">
+          <option value="all">All</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+    </div>
+    <div class="prob-list" id="prob-list"></div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+// ─────────────────────────────────────────────
+// ✅ YOUR FIREBASE CONFIG — already filled in!
+// ─────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyA6QyRwwbCV012SqwlWqaOMfWwWU44wnu4",
+  authDomain: "leetcode-battle-df3bc.firebaseapp.com",
+  databaseURL: "https://leetcode-battle-df3bc-default-rtdb.firebaseio.com",
+  projectId: "leetcode-battle-df3bc",
+  storageBucket: "leetcode-battle-df3bc.firebasestorage.app",
+  messagingSenderId: "476921142304",
+  appId: "1:476921142304:web:daa2e1515b40868d4c3045"
+};
+// ─────────────────────────────────────────────
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const POINTS = { easy:1, medium:3, hard:5 };
+let problems = [];
+let names = { p1:'Yesenia Berry', p2:'Jose' };
+let db = null;
+
+function initFirebase() {
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getDatabase(app);
+    setSyncStatus(true);
+    onValue(ref(db,'problems'), snap => {
+      const val = snap.val();
+      problems = val ? Object.values(val).sort((a,b) => b.id-a.id) : [];
+      render();
+    });
+    onValue(ref(db,'names'), snap => {
+      const val = snap.val();
+      if (val) { names = val; applyNames(); }
+    });
+  } catch(e) {
+    setSyncStatus(false);
+    console.error('Firebase error:', e);
+  }
+}
+
+function setSyncStatus(ok) {
+  document.getElementById('sync-dot').className = 'status-dot' + (ok ? ' live' : '');
+  document.getElementById('sync-label').textContent = ok ? 'live — syncing across devices 🟢' : 'offline — check console for errors';
+}
+
+window.saveNames = function() {
+  const v1 = document.getElementById('name1-input').value.trim() || 'Yesenia Berry';
+  const v2 = document.getElementById('name2-input').value.trim() || 'Jose';
+  names = { p1:v1, p2:v2 };
+  if (db) set(ref(db,'names'), names);
+  applyNames();
+  toast('names saved! 🌸');
+};
+
+function applyNames() {
+  document.getElementById('p1name').textContent     = names.p1;
+  document.getElementById('p2name').textContent     = names.p2;
+  document.getElementById('lane1-name').textContent = names.p1;
+  document.getElementById('lane2-name').textContent = names.p2;
+  document.getElementById('act-name-1').textContent = names.p1;
+  document.getElementById('act-name-2').textContent = names.p2;
+  document.getElementById('opt1').textContent       = names.p1;
+  document.getElementById('opt2').textContent       = names.p2;
+  document.getElementById('fopt1').textContent      = names.p1;
+  document.getElementById('fopt2').textContent      = names.p2;
+}
+
+window.addProblem = function() {
+  const name = document.getElementById('prob-name').value.trim();
+  if (!name) { toast('enter a problem name!'); return; }
+  const player = document.getElementById('prob-player').value;
+  const diff   = document.getElementById('prob-diff').value;
+  const tag    = document.getElementById('prob-tag').value;
+  const time   = parseInt(document.getElementById('prob-time').value) || null;
+  const id     = Date.now();
+  const entry  = { id, name, player, diff, tag, time, date: todayStr() };
+  if (db) set(ref(db,'problems/'+id), entry);
+  else { problems.unshift(entry); render(); }
+  document.getElementById('prob-name').value = '';
+  document.getElementById('prob-time').value = '';
+  toast('logged! 🔥');
+};
+
+window.deleteProblem = function(id) {
+  if (!confirm('delete this problem?')) return;
+  if (db) remove(ref(db,'problems/'+id));
+  else { problems = problems.filter(p=>p.id!==id); render(); }
+};
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function getStats(player) {
+  const ps = problems.filter(p=>p.player==player);
+  const e = ps.filter(p=>p.diff==='easy').length;
+  const m = ps.filter(p=>p.diff==='medium').length;
+  const h = ps.filter(p=>p.diff==='hard').length;
+  return { e, m, h, pts: e+m*3+h*5, streak: calcStreak(ps) };
+}
+
+function calcStreak(ps) {
+  if (!ps.length) return 0;
+  const dates = [...new Set(ps.map(p=>p.date))].sort((a,b)=>b>a?1:-1);
+  if (dates[0] !== todayStr()) return 0;
+  let s = 1;
+  for (let i=1;i<dates.length;i++) {
+    if (Math.round((new Date(dates[i-1])-new Date(dates[i]))/86400000)===1) s++; else break;
+  }
+  return s;
+}
+
+function render() {
+  const s1 = getStats(1), s2 = getStats(2);
+  const total = s1.pts + s2.pts;
+
+  if (total === 0) {
+    document.getElementById('fill1').style.width = '4%';
+    document.getElementById('fill2').style.width = '4%';
+    document.getElementById('race-status').textContent = 'no problems yet';
+    document.getElementById('gap-left').textContent  = names.p1;
+    document.getElementById('gap-right').textContent = names.p2;
+    document.getElementById('gap-fill').style.width  = '50%';
+  } else {
+    const max  = Math.max(s1.pts, s2.pts);
+    document.getElementById('fill1').style.width = Math.max(4, Math.round(s1.pts/max*92))+'%';
+    document.getElementById('fill2').style.width = Math.max(4, Math.round(s2.pts/max*92))+'%';
+    document.getElementById('gap-fill').style.width = Math.round(s1.pts/total*100)+'%';
+    if (s1.pts > s2.pts) {
+      document.getElementById('race-status').textContent = names.p1+' leads 🌸';
+      document.getElementById('gap-left').textContent  = names.p1+' +'+(s1.pts-s2.pts);
+      document.getElementById('gap-right').textContent = names.p2;
+    } else if (s2.pts > s1.pts) {
+      document.getElementById('race-status').textContent = names.p2+' leads 💜';
+      document.getElementById('gap-left').textContent  = names.p1;
+      document.getElementById('gap-right').textContent = names.p2+' +'+(s2.pts-s1.pts);
+    } else {
+      document.getElementById('race-status').textContent = 'neck and neck 🏁';
+      document.getElementById('gap-left').textContent  = names.p1;
+      document.getElementById('gap-right').textContent = names.p2;
+    }
+  }
+
+  document.getElementById('lane1-pts').innerHTML = s1.pts+' <span>pts</span>';
+  document.getElementById('lane2-pts').innerHTML = s2.pts+' <span>pts</span>';
+  document.getElementById('lane1-easy').textContent = s1.e+'e';
+  document.getElementById('lane1-med').textContent  = s1.m+'m';
+  document.getElementById('lane1-hard').textContent = s1.h+'h';
+  document.getElementById('lane2-easy').textContent = s2.e+'e';
+  document.getElementById('lane2-med').textContent  = s2.m+'m';
+  document.getElementById('lane2-hard').textContent = s2.h+'h';
+  document.getElementById('lane1-streak').textContent = s1.streak>0 ? '🔥 '+s1.streak+'-day streak':'';
+  document.getElementById('lane2-streak').textContent = s2.streak>0 ? '🔥 '+s2.streak+'-day streak':'';
+  document.getElementById('p1easy').textContent = s1.e+' easy';
+  document.getElementById('p1med').textContent  = s1.m+' med';
+  document.getElementById('p1hard').textContent = s1.h+' hard';
+  document.getElementById('p2easy').textContent = s2.e+' easy';
+  document.getElementById('p2med').textContent  = s2.m+' med';
+  document.getElementById('p2hard').textContent = s2.h+' hard';
+  document.getElementById('p1streak').textContent = s1.streak>0 ? '🔥 '+s1.streak+'-day streak':'';
+  document.getElementById('p2streak').textContent = s2.streak>0 ? '🔥 '+s2.streak+'-day streak':'';
+
+  const c1=document.getElementById('card1'), c2=document.getElementById('card2');
+  c1.classList.remove('winner'); c2.classList.remove('winner');
+  if (s1.pts>s2.pts) c1.classList.add('winner');
+  else if (s2.pts>s1.pts) c2.classList.add('winner');
+
+  buildChart(1,'chart1');
+  buildChart(2,'chart2');
+  renderList();
+}
+
+function dateStrings(weeksBack) {
+  const days=[], today=new Date();
+  today.setHours(0,0,0,0);
+  const start=new Date(today);
+  start.setDate(today.getDate()-today.getDay()-(weeksBack-1)*7);
+  for(let i=0;i<weeksBack*7;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const s=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    days.push({str:s});
+  }
+  return days;
+}
+
+function buildChart(player, containerId) {
+  const WEEKS=8, days=dateStrings(WEEKS), today=todayStr();
+  const counts={};
+  problems.filter(p=>p.player==player).forEach(p=>{ counts[p.date]=(counts[p.date]||0)+1; });
+  const joinDates=problems.filter(p=>p.player==player).map(p=>p.date).sort();
+  const joinDate=joinDates.length?joinDates[0]:null;
+  const weeks=[];
+  for(let w=0;w<WEEKS;w++) weeks.push(days.slice(w*7,w*7+7));
+  const container=document.getElementById(containerId);
+
+  let monthHtml='<div class="chart-month-labels">';
+  weeks.forEach(week=>{
+    const m=new Date(week[0].str+'T00:00:00').toLocaleString('en-US',{month:'short'});
+    monthHtml+=`<div class="month-lbl" style="width:${20*7+3*6}px">${m}</div>`;
+  });
+  monthHtml+='</div>';
+
+  const DOW=['S','M','T','W','T','F','S'];
+  let rowsHtml='<div class="week-rows">';
+  for(let dow=0;dow<7;dow++){
+    rowsHtml+=`<div class="week-row"><div class="week-label">${DOW[dow]}</div><div class="day-cells">`;
+    weeks.forEach(week=>{
+      const ds=week[dow].str, cnt=counts[ds]||0;
+      const isFuture=ds>today, isPast=ds<today, isToday=ds===today;
+      const hasJoined=joinDate?ds>=joinDate:false;
+      let cls='day-cell', tip='';
+      if(isFuture){ cls+=' none'; tip=ds; }
+      else if(cnt>0){ cls+=cnt>=4?' has-4':cnt===3?' has-3':cnt===2?' has-2':' has-1'; tip=`${ds}: ${cnt} problem${cnt>1?'s':''}`; }
+      else if(isPast&&hasJoined){ cls+=' skipped'; tip=`${ds}: skipped 😬`; }
+      else{ cls+=' none'; tip=ds; }
+      if(isToday) cls+=' today-cell';
+      rowsHtml+=`<div class="${cls}"><div class="day-tip">${tip}</div></div>`;
+    });
+    rowsHtml+='</div></div>';
+  }
+  rowsHtml+='</div>';
+  container.innerHTML=monthHtml+rowsHtml;
+}
+
+function renderList() {
+  const fp=document.getElementById('filter-player').value;
+  const fd=document.getElementById('filter-diff').value;
+  const filtered=problems.filter(p=>(fp==='all'||p.player==fp)&&(fd==='all'||p.diff===fd));
+  const el=document.getElementById('prob-list');
+  if(!filtered.length){ el.innerHTML='<div class="empty-state">nothing here yet — start the race!</div>'; return; }
+  el.innerHTML=filtered.map(p=>`
+    <div class="prob-item">
+      <div>
+        <div class="prob-name">${p.name}</div>
+        <div class="prob-meta">
+          <span style="font-weight:700;color:${p.player==1?'var(--p1)':'var(--p2)'}">${p.player==1?names.p1:names.p2}</span> ·
+          <span class="badge ${p.diff}">${p.diff}</span> ·
+          <span>${p.tag}</span>
+          ${p.time?' · <span>'+p.time+'min</span>':''} ·
+          <span>${p.date}</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="pts-pill ${p.player==1?'p1':'p2'}">+${POINTS[p.diff]}pt${POINTS[p.diff]>1?'s':''}</span>
+        <button class="del-btn" onclick="deleteProblem(${p.id})" aria-label="Delete">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.toast = function(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+};
+
+initFirebase();
+</script>
+</body>
+</html>
